@@ -64,7 +64,7 @@ The dataset contains 24 fictional study-room bookings. It does not contain stude
 4. Use the repository root as the working directory.
 
 ```bash
-git clone https://github.com/your-username/markdown-buddy-tedros-habtemariam.git
+git clone https://github.com/Tedroshabtemariam/markdown-buddy-tedros-habtemariam.git
 cd markdown-buddy-tedros-habtemariam
 ```
 
