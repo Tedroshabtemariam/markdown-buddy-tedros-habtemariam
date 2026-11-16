@@ -17,13 +17,13 @@
 
 ## Required Student Checks Before Submission
 
-- [ ] Run `source("scripts/study_room_analysis.R")` in RStudio or Posit Cloud.
-- [ ] Confirm the script finishes without an error.
-- [ ] Manually cross-check at least two `student_hours` calculations.
-- [ ] Confirm grouped totals agree with completed source records.
-- [ ] Confirm both output CSV files and the PNG chart are created.
-- [ ] Knit or preview `study_room_documentation.Rmd` successfully.
+- [x] Run `source("scripts/study_room_analysis.R")` in RStudio or Posit Cloud.
+- [x] Confirm the script finishes without an error.
+- [x] Manually cross-check at least two `student_hours` calculations.
+- [x] Confirm grouped totals agree with completed source records.
+- [x] Confirm both output CSV files and the PNG chart are created.
+- [x] Knit or preview `study_room_documentation.Rmd` successfully.
 - [ ] Inspect the README in GitHub Preview for correct rendering.
-- [ ] Create the public repository using the required name.
-- [ ] Replace the example clone URL with the verified repository URL.
+- [x] Create the public repository using the required name.
+- [x] Replace the example clone URL with the verified repository URL.
 - [ ] Submit the required file or repository link through the LMS.
