@@ -1,0 +1,180 @@
+---
+title: "Synthetic Study-Room Usage Analysis"
+author: "Tedros Habtemariam"
+date: "2026-11-16"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    number_sections: true
+---
+
+> **AI Assistance Declaration:** I used ChatGPT by OpenAI on November 16, 2026, for R Markdown organization, formatting suggestions, wording refinement, and validation planning. The exact prompts and key responses are in `AI_Prompts_Appendix.md`. I verified the draft through manual syntax review, Pandoc parsing, file-path checks, independent inspection of the formulas, and a self spot-check. All final calculations are performed by the R script. I am responsible for the accuracy and originality of this work.
+
+# Purpose
+
+This document explains `scripts/study_room_analysis.R`. The script imports and validates a synthetic study-room booking dataset, calculates completed room-hours and student-hours, produces grouped summary tables, and creates a bar chart.
+
+The project is educational. Its fictional records must not be interpreted as evidence about real students or campus facilities.
+
+# Inputs
+
+The script reads:
+
+```text
+data/synthetic_study_room_bookings.csv
+```
+
+| Variable | Expected format | Validation rule |
+|---|---|---|
+| `booking_id` | Character | Unique and non-duplicated |
+| `booking_date` | `YYYY-MM-DD` | Must convert to a valid R `Date` |
+| `time_slot` | Character | Morning, Afternoon, or Evening |
+| `room_type` | Character | Small, Medium, or Large |
+| `group_size` | Numeric | Positive and non-missing |
+| `duration_hours` | Numeric | Positive and non-missing |
+| `status` | Character | Completed, Cancelled, or No-show |
+
+# Processing Logic
+
+## 1. Import the source file
+
+The script checks that the relative input path exists before importing the CSV file.
+
+```{r read-data, eval=FALSE}
+input_path <- file.path("data", "synthetic_study_room_bookings.csv")
+
+if (!file.exists(input_path)) {
+  stop("Input file was not found: ", input_path)
+}
+
+bookings <- read.csv(input_path, stringsAsFactors = FALSE)
+```
+
+## 2. Validate fields and categories
+
+The script compares the imported field names with the required schema and stops if fields are missing.
+
+```{r validate-columns, eval=FALSE}
+required_columns <- c(
+  "booking_id", "booking_date", "time_slot", "room_type",
+  "group_size", "duration_hours", "status"
+)
+
+missing_columns <- setdiff(required_columns, names(bookings))
+if (length(missing_columns) > 0L) {
+  stop("Missing required columns: ", paste(missing_columns, collapse = ", "))
+}
+```
+
+Additional checks cover duplicate identifiers, invalid dates, unsupported categories, missing values, and non-positive group sizes or durations.
+
+## 3. Select completed bookings
+
+Cancelled and no-show bookings remain part of the total-booking count but are excluded from completed utilization measures.
+
+```{r filter-completed, eval=FALSE}
+completed <- bookings[bookings$status == "Completed", ]
+
+if (nrow(completed) == 0L) {
+  stop("No completed bookings are available for analysis.")
+}
+```
+
+## 4. Calculate usage measures
+
+Room-hours equal the duration of each completed booking. Student-hours combine group size and duration.
+
+```{r calculate-measures, eval=FALSE}
+completed$room_hours <- completed$duration_hours
+completed$student_hours <- completed$group_size * completed$duration_hours
+```
+
+All numerical results are calculated by R when the script runs; no final totals are supplied by AI.
+
+## 5. Create grouped summaries
+
+The script uses base R `aggregate()` to summarize completed usage by room type and time slot.
+
+```{r grouped-summary, eval=FALSE}
+room_type_summary <- aggregate(
+  cbind(room_hours, student_hours) ~ room_type,
+  data = completed,
+  FUN = sum
+)
+room_type_summary <- room_type_summary[order(-room_type_summary$room_hours), ]
+```
+
+## 6. Create the chart
+
+```{r chart, eval=FALSE}
+png(
+  filename = file.path("outputs", "completed_room_hours.png"),
+  width = 1200,
+  height = 800,
+  res = 150
+)
+barplot(
+  room_type_summary$room_hours,
+  names.arg = room_type_summary$room_type,
+  col = c("#1B4965", "#5FA8D3", "#62B6CB"),
+  border = NA,
+  main = "Completed Study-Room Hours by Room Type",
+  xlab = "Room Type",
+  ylab = "Completed Room-Hours"
+)
+dev.off()
+```
+
+# Outputs
+
+| Output | Purpose |
+|---|---|
+| `outputs/room_type_summary.csv` | Completed bookings, room-hours, and student-hours by room type |
+| `outputs/time_slot_summary.csv` | Completed bookings, room-hours, and student-hours by time slot |
+| `outputs/completed_room_hours.png` | Visual comparison of completed room-hours |
+
+# How to Run
+
+From the repository root, run:
+
+```{r run-script, eval=FALSE}
+source("scripts/study_room_analysis.R")
+```
+
+Open this `.Rmd` file in RStudio or Posit Cloud and select **Knit**. The explanatory chunks use `eval=FALSE` so the full analysis remains centralized in one auditable `.R` script.
+
+# Verification Pattern
+
+## Primary calculation
+
+The R script calculates all measures and writes the two summary tables and chart.
+
+## Independent cross-check
+
+Before submission, compare at least two completed records manually: confirm that `student_hours` equals `group_size * duration_hours`, and confirm that a grouped total equals the sum of its completed source rows.
+
+## Self spot-check
+
+Confirm the input row count, unique booking IDs, allowed categories, output filenames, chart labels, and agreement between the CSV summaries and the chart. No peer review is claimed.
+
+The Markdown structure, code fences, headings, and local links were checked independently. The final RStudio execution and knit remain required student checks.
+
+# Limitations
+
+1. The dataset is small and synthetic.
+2. A completed reservation does not prove the room was occupied for every booked minute.
+3. Student-hours do not measure learning outcomes or individual productivity.
+4. The workflow is descriptive and does not forecast future room demand.
+
+# Privacy and Ethical Use
+
+The dataset contains no names, student numbers, contact details, or real booking records. AI assisted with organization and wording, while project-specific claims and formulas were checked against the actual files.
+
+# Related Files
+
+- [Project README](README.md)
+- [R analysis script](scripts/study_room_analysis.R)
+- [Reflection](Reflection.md)
+- [AI prompt appendix](AI_Prompts_Appendix.md)
+- [Verification checklist](VERIFICATION_CHECKLIST.md)
